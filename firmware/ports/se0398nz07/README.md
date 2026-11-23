@@ -55,7 +55,7 @@ GND 共地，VCC 按转接板规格供电。立创定制板示例另用 `CS=4、
 pio run -d firmware/ports/se0398nz07 -e epd_398_bwry_s3_n16r8_A1_old
 ```
 
-验证状态：A1 两套已做模拟 SPI 数据检查；本移植尚未进行实屏验证。
+验证状态：三个 S3 目标均已在 macOS 使用 PlatformIO Espressif32 8.0.0 / Arduino-ESP32 3.3.12 完成编译和固件合并，产物位于本工程的 `.pio/build/<环境名>/firmware_merged.bin`。A1 两套另已做模拟 SPI 数据检查；尚未进行实屏验证。
 
 参考：[A1 批次与 JD79665 驱动说明](https://oshwhub.com/chen7654/project_rarhcffq)。
 

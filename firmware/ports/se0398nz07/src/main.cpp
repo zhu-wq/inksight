@@ -7,7 +7,7 @@
 #include "config.h"
 #include "epd_driver.h"
 #include "display.h"
-#include "network.h"
+#include "inksight_network.h"
 #include "storage.h"
 #include "portal.h"
 #include "offline_cache.h"
