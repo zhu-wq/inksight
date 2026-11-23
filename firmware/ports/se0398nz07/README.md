@@ -61,6 +61,10 @@ pio run -d firmware/ports/se0398nz07 -e epd_398_bwry_s3_n16r8_A1_old
 
 ## 独立对照：MoInk 的 C3 方案（不是第四个 S3 构建目标）
 
+**MoInk 最值得借鉴的是离线传照片。** 手机直接连接设备自己的 Wi-Fi 热点，用浏览器打开设备提供的页面，选图、裁剪、转为四色，再传给设备刷屏。走这条本地流程，不需要路由器、外部服务器、App 或账号；照片只在手机和设备之间传输。MoInk 也支持可选联网，但联网不是本地传图的前提。
+
+这和「墨水屏断电后还能显示上一次的画面」不同：MoInk 在没有互联网时仍能**换一张新照片**。本目录的三套 S3 配置适配的是 InkSight 屏幕驱动，未集成 MoInk 的热点传图页面；设备有配网热点，也不等于支持离线传照片。
+
 [MakerWorld 作品 2998451](https://makerworld.com.cn/models/2998451) · [atunverse/moink 源码，核对版本 `343be94`](https://github.com/atunverse/moink/tree/343be94486388bbbe19891232e6bd79c0fce343c)。MoInk 使用 ESP32-C3 SuperMini（无 PSRAM）和 ESP-IDF；手机浏览器完成裁剪、四色量化与抖动（含 Atkinson），再把打包帧发给设备。它有自己的固件、帧协议和接线预设。
 
 排查 A1 中缝时，注意区分**接收图像、写入窗口、控制器扫描尺寸**。MoInk 的 [A1 驱动](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/src/epd_drv.c#L284-L318)接收 768×552，以 `(0,0)` 为起点顺序写 552 行，但控制器扫描 **768×600**；没有本项目立创新批次方案的 **800×600、X+32**。作者在[帧协议与实测记录](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/docs/CONTRACT.md#L96-L141)中说明已移除旧的 800×600 诊断档。MoInk 的 `A1` 不能据此直接等同于本项目的 `A1_old` 或 `a1_new`。
