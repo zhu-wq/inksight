@@ -6,13 +6,6 @@
 // ── Software SPI (bit-bang) for 4.2" SSD1683 BW panels ──
 // Avoids Busy Timeout on ESP32-C3 with non-default pins; no GxEPD2 dependency.
 
-#ifdef EPD_A1_NEW_BATCH
-static_assert(W == 768 && H == 552 && EPD_BPP == 2, "Unexpected A1 visible geometry");
-static constexpr int ramW = 800, ramH = 600, offsetX = 32, offsetY = 0;
-#else
-static constexpr int ramW = W, ramH = H, offsetX = 0, offsetY = 0;
-#endif
-
 static void spiWriteByte(uint8_t data) {
     for (int i = 0; i < 8; i++) {
         digitalWrite(PIN_EPD_MOSI, (data & 0x80) ? HIGH : LOW);
@@ -180,10 +173,10 @@ void epdInit() {
 
     // 设置屏幕尺寸
     epdSendCommand(0x61);
-    epdSendData(ramW / 256);
-    epdSendData(ramW % 256);
-    epdSendData(ramH / 256);
-    epdSendData(ramH % 256);
+    epdSendData(W / 256);
+    epdSendData(W % 256);
+    epdSendData(H / 256);
+    epdSendData(H % 256);
     
     epdSendCommand(0x04);
     epdWaitBusy();
@@ -379,7 +372,9 @@ static uint8_t epdRemap2bppColor(uint8_t color) {
 }
 
 static void epdWriteMapped2bpp(const uint8_t *buf2bpp) {
-    const int width = ramW, height = ramH;
+    int width = W;
+    int height = H;
+    int bytesPerRow = width / 4;
 
     epdSendCommand(0x04);
     epdWaitBusy();
@@ -401,6 +396,15 @@ static void epdWriteMapped2bpp(const uint8_t *buf2bpp) {
             epdSendData(0x01);
             epdSendCommand(0x10);
 
+            // 上下镜像核心：读取翻转后的行
+            int flippedY = height - 1 - j;
+            int rowStart = flippedY * bytesPerRow;
+            for (int i = bytesPerRow - 1; i >= 0; i--) {  // 列倒序
+                uint8_t src = buf2bpp[rowStart + i];
+                // 4个像素内部翻转
+                uint8_t dst = ((src & 0x03) << 6) | ((src & 0x0C) << 2) | ((src & 0x30) >> 2) | ((src & 0xC0) >> 6);
+                epdSendData(dst);
+            }
         } else {
             epdSendCommand(0x83);
             epdSendData(0x00);
@@ -414,17 +418,14 @@ static void epdWriteMapped2bpp(const uint8_t *buf2bpp) {
             epdSendData(0x01);
             epdSendCommand(0x10);
 
-        }
-        const int y = height - 1 - j - offsetY;
-        for (int x = 0; x < width; x += 4) {
-            const int visibleX = x - offsetX;
-            if (y < 0 || y >= H || visibleX < 0 || visibleX >= W) {
-                epdSendData(0x55);  // Four white pixels
-                continue;
+            // 上下镜像核心
+            int flippedY = height - 1 - j;
+            int rowStart = flippedY * bytesPerRow;
+            for (int i = bytesPerRow - 1; i >= 0; i--) {
+                uint8_t src = buf2bpp[rowStart + i];
+                uint8_t dst = ((src & 0x03) << 6) | ((src & 0x0C) << 2) | ((src & 0x30) >> 2) | ((src & 0xC0) >> 6);
+                epdSendData(dst);
             }
-            const uint8_t src = buf2bpp[y * (W / 4) + (W - 4 - visibleX) / 4];
-            epdSendData(((src & 0x03) << 6) | ((src & 0x0C) << 2) |
-                        ((src & 0x30) >> 2) | ((src & 0xC0) >> 6));
         }
     }
 

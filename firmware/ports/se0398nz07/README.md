@@ -5,8 +5,10 @@
 | 环境 | 驱动尺寸 | 说明 |
 |---|---|---|
 | `epd_398_bwry_s3_n16r8_A0` | 768×552 | 创客原方案，无偏移 |
-| `epd_398_bwry_s3_n16r8_A1_old` | 768×552 | A1 旧批次，无偏移 |
-| `epd_398_bwry_s3_n16r8_a1_new` | 800×600 | 默认；A1 新批次，X 偏移 +32 |
+| `epd_398_bwry_s3_n16r8_A1_old` | 768×552 | krstc 的 JD79665 初始化、顺序写帧及 BUSY 等待，无偏移 |
+| `epd_398_bwry_s3_n16r8_a1_new` | 800×600 | 默认；同一 krstc 驱动，加本项目的 X+32 补白补丁 |
+
+A0 单独编译创客 ZIP 原始 `src/epd_driver.cpp`。A1 单独编译 `src/jd79665_a1.cpp`，取自 [krstc 的 JD79665 分支代码（固定版本）](https://github.com/krstc/InkSight_adapt_HUAWEI_eink/blob/78ceea65ec754fcacc3a9a6036416b755bd2f64c/firmware/src/epd_driver.cpp)。该版本自身没有新批次补丁。新批次每行先发送 8 个白色字节，再发送 192 字节可见内容，最后 48 行补白；后台仍使用 768×552。
 
 从仓库根目录构建，例如：
 
