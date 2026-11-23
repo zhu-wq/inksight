@@ -5,10 +5,10 @@
 | 环境 | 驱动尺寸 | 说明 |
 |---|---|---|
 | `epd_398_bwry_s3_n16r8_A0` | 768×552 | 创客原方案，无偏移 |
-| `epd_398_bwry_s3_n16r8_A1_old` | 768×552 | krstc 的 JD79665 初始化、顺序写帧及 BUSY 等待，无偏移 |
-| `epd_398_bwry_s3_n16r8_a1_new` | 800×600 | 默认；同一 krstc 驱动，加本项目的 X+32 补白补丁 |
+| `epd_398_bwry_s3_n16r8_A1_old` | 768×552 | 立创附件的 GxEPD2 JD79665 驱动，使用旧批次尺寸，无偏移 |
+| `epd_398_bwry_s3_n16r8_a1_new` | 800×600 | 默认；同一附件驱动，使用原始 RAM 尺寸，图像从 X=32 写入 |
 
-A0 单独编译创客 ZIP 原始 `src/epd_driver.cpp`。A1 单独编译 `src/jd79665_a1.cpp`，取自 [krstc 的 JD79665 分支代码（固定版本）](https://github.com/krstc/InkSight_adapt_HUAWEI_eink/blob/78ceea65ec754fcacc3a9a6036416b755bd2f64c/firmware/src/epd_driver.cpp)。该版本自身没有新批次补丁。新批次每行先发送 8 个白色字节，再发送 192 字节可见内容，最后 48 行补白；后台仍使用 768×552。
+A0 单独编译创客 ZIP 原始 `src/epd_driver.cpp`。两个 A1 环境都通过 `src/jd79665_a1.cpp` 调用本地 `lib/JD79665`：这是从[立创点屏工程](https://oshwhub.com/chen7654/project_rarhcffq)附件 `ESP32_3in98_Eink.zip` 提取的面板类和 GxEPD2 基类（附原许可证）。本地改动是选择批次尺寸和记录上电状态，以便刷完后正常下电。[krstc](https://github.com/krstc/InkSight_adapt_HUAWEI_eink/tree/78ceea6) 仅作协议参考。新批次每行先发送 8 个白色字节，再发送 192 字节可见内容，最后 48 行补白；后台仍使用 768×552。SPI 使用下表引脚，不使用示例定制板的 GPIO41 电源开关。
 
 从仓库根目录构建，例如：
 
