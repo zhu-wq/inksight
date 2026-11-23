@@ -1,6 +1,7 @@
 # Text files: LF in repo and on checkout (align with Linux CI; stable diffs on Windows).
 # Git still detects binary vs text via heuristics; see binary rules below.
 * text=auto eol=lf
+firmware/ports/se0398nz07/lib/JD79665/src/epd4c/GxEPD2_380_JD79665.* -text !eol
 
 # Binary / generated assets — never apply line-ending conversion
 *.png binary

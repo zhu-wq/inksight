@@ -11,12 +11,9 @@ class GxEPD2_380_JD79665 : public GxEPD2_EPD
 {
   public:
     // attributes
-#ifdef EPD_A1_NEW_BATCH
-    static const uint16_t WIDTH = 800, HEIGHT = 600;
-#else
-    static const uint16_t WIDTH = 768, HEIGHT = 552;
-#endif
+    static const uint16_t WIDTH = 800;
     static const uint16_t WIDTH_VISIBLE = WIDTH;
+    static const uint16_t HEIGHT = 600;
     static const GxEPD2::Panel panel = GxEPD2::GDEM0380F52;
     static const bool hasColor = true;
     static const bool hasPartialUpdate = false;   // JD79665 4色无真正部分刷新

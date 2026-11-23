@@ -570,7 +570,6 @@ void GxEPD2_380_JD79665::_InitDisplay()
 
   _writeCommand(0x04);
   _waitWhileBusyQuick("_InitDisplay (0x04)", 5000);
-  _power_is_on = true; // 0x04 was issued above; allow powerOff() to send 0x02.
 
   _init_display_done = true;
 }
