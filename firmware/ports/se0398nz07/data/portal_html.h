@@ -78,6 +78,7 @@ body{font-family:var(--f);background:linear-gradient(135deg,#f5f5f0,#e8e8e0);col
 <div class="logo">墨</div>
 <h1 id="logoText">InkSight <span style="font-weight:400;font-size:.85em">墨鱼</span></h1>
 <p id="subtitle">WiFi 配网</p>
+<p><a href="/local">免服务器：本地照片 / 便签 → 刷屏并休眠</a></p>
 </div>
 
 <div class="steps">
@@ -130,7 +131,7 @@ body{font-family:var(--f);background:linear-gradient(135deg,#f5f5f0,#e8e8e0);col
 <div id="srvCusTip1" style="font-size:.68rem;color:var(--gy);margin-top:3px">输入你自己部署的 InkSight 后端地址（含端口）</div>
 <div style="margin-top:10px">
 <input type="text" class="inp" id="frontendPortIn" value="3000" placeholder="例如: 3000">
-<div id="srvCusTip2" style="font-size:.68rem;color:var(--gy);margin-top:3px">前端配置页端口，用于重启后跳转到 localhost:端口/config</div>
+<div id="srvCusTip2" style="font-size:.68rem;color:var(--gy);margin-top:3px">前端配置页端口（与后端使用同一主机名）</div>
 </div>
 </div>
 </div>
@@ -188,7 +189,7 @@ srvOff:"官方服务",
 srvCus:"自定义服务",
 srvOffTip:"将使用官方云服务生成内容",
 srvCusTip1:"输入你自己部署的 InkSight 后端地址（含端口）",
-srvCusTip2:"前端配置页端口，用于重启后跳转到 localhost:端口/config",
+srvCusTip2:"前端配置页端口（与后端使用同一主机名）",
 srvUrlPh:"例如: http://192.168.1.100:8080",
 srvPortPh:"例如: 3000",
 btnConn:"连接并保存",
@@ -240,7 +241,7 @@ srvOff:"Official",
 srvCus:"Custom",
 srvOffTip:"Will use official cloud service",
 srvCusTip1:"Enter your self-hosted backend URL (with port)",
-srvCusTip2:"Frontend port, used for redirecting to localhost:port/config",
+srvCusTip2:"Frontend port on the same host as your backend",
 srvUrlPh:"e.g. http://192.168.1.100:8080",
 srvPortPh:"e.g. 3000",
 btnConn:"Connect & Save",
@@ -357,7 +358,7 @@ if(!normalized)return'';
 if(normalized===normalizeServerUrl(OFFICIAL_SERVER))base=OFFICIAL_CONFIG_URL;
 else{
 if(!frontendPort||!/^\d{2,5}$/.test(frontendPort))return'';
-base='http://localhost:'+frontendPort+'/config';
+try{var u=new URL(normalized);u.port=frontendPort;u.pathname='/config';u.search='';u.hash='';base=u.toString();}catch(e){return'';}
 }
 var qs=[];
 if(devMac)qs.push('prefer_mac='+encodeURIComponent(devMac));

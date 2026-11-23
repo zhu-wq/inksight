@@ -184,10 +184,10 @@ void setup() {
     gpioInit();
     ledInit();
 
-    bool forcePortal = false;
+    bool forcePortal = esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT0;
     if (digitalRead(PIN_CFG_BTN) == LOW) {
         delay(400);
-        forcePortal = (digitalRead(PIN_CFG_BTN) == LOW);
+        forcePortal |= (digitalRead(PIN_CFG_BTN) == LOW);
     }
 
     cacheInit();
@@ -710,8 +710,8 @@ static void checkConfigButton() {
         } else {
             unsigned long holdTime = millis() - ctx.btnPressStart;
             if (holdTime >= (unsigned long)CFG_BTN_HOLD_MS) {
-                Serial.printf("Config button held for %dms, restarting...\n", CFG_BTN_HOLD_MS);
-                ESP.restart();
+                if (ctx.state == DeviceState::PORTAL) ESP.restart();
+                else enterPortalMode();
             }
         }
     } else {

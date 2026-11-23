@@ -9,6 +9,10 @@
 #include <esp_system.h>
 
 #include "../data/portal_html.h"
+#include "../data/local_frame_html.h"
+#include "epd_driver.h"
+#include <esp_crc.h>
+#include <esp_sleep.h>
 
 // ── Portal state ────────────────────────────────────────────
 bool portalActive    = false;
@@ -21,6 +25,43 @@ static unsigned long restartAtMillis = 0;
 
 static WebServer webServer(80);
 static DNSServer dnsServer;
+
+// WebServer handles one multipart request at a time. Only a complete frame
+// from the AP interface may transfer ownership of colorBuf to the display.
+static bool localReady, localPending;
+static size_t localBytes;
+static uint32_t localCRC, expectedCRC;
+
+static bool onHotspot() {
+    return webServer.client().localIP() == WiFi.softAPIP();
+}
+
+static void localUpload() {
+    auto &u = webServer.upload();
+    if (localPending) return;
+    if (u.status == UPLOAD_FILE_START) {
+        localReady = false;
+        localBytes = 0;
+        localCRC = 0;
+        const bool valid = onHotspot() && colorBuf && u.name == "frame" &&
+            u.filename.length() == 12 && u.filename.endsWith(".bin") &&
+            strspn(u.filename.c_str(), "0123456789abcdef") == 8;
+        if (!valid) localBytes = COLOR_BUF_LEN + 1;
+        else expectedCRC = strtoul(u.filename.c_str(), nullptr, 16);
+    } else if (u.status == UPLOAD_FILE_WRITE) {
+        if (localBytes > COLOR_BUF_LEN || u.currentSize > COLOR_BUF_LEN - localBytes) {
+            localBytes = COLOR_BUF_LEN + 1;
+            return;
+        }
+        memcpy(colorBuf + localBytes, u.buf, u.currentSize);
+        localCRC = esp_crc32_le(localCRC, u.buf, u.currentSize);
+        localBytes += u.currentSize;
+    } else if (u.status == UPLOAD_FILE_END) {
+        localReady = localBytes == COLOR_BUF_LEN && localCRC == expectedCRC;
+    } else if (u.status == UPLOAD_FILE_ABORTED) {
+        localReady = false;
+    }
+}
 
 // ── Input validation helpers ────────────────────────────────
 
@@ -106,6 +147,17 @@ void startCaptivePortal() {
     webServer.on("/", HTTP_GET, []() {
         webServer.send(200, "text/html", PORTAL_HTML);
     });
+    webServer.on("/local", HTTP_GET, []() {
+        if (!onHotspot()) { webServer.send(403); return; }
+        webServer.send_P(200, "text/html; charset=utf-8", LOCAL_FRAME_HTML);
+    });
+    webServer.on("/local-frame", HTTP_POST, []() {
+        if (!onHotspot()) { localReady = false; webServer.send(403); return; }
+        if (!localReady) { webServer.send(400, "text/plain", "Incomplete or invalid frame"); return; }
+        localReady = false;
+        localPending = true;
+        webServer.send(202, "text/plain", "Frame accepted");
+    }, localUpload);
 
     // ── Route: WiFi network scan ────────────────────────────
     webServer.on("/scan", HTTP_GET, []() {
@@ -343,6 +395,14 @@ void startCaptivePortal() {
 void handlePortalClients() {
     dnsServer.processNextRequest();
     webServer.handleClient();
+    if (localPending) {
+        delay(200); // let the phone receive the acknowledgement before dropping the AP
+        WiFi.mode(WIFI_OFF);
+        epdDisplay2bpp(colorBuf);
+        epdSleep();
+        esp_sleep_enable_ext0_wakeup((gpio_num_t)PIN_CFG_BTN, 0);
+        esp_deep_sleep_start();
+    }
 
     // Deferred restart after config save
     if (pendingRestart && millis() >= restartAtMillis) {
