@@ -58,3 +58,11 @@ pio run -d firmware/ports/se0398nz07 -e epd_398_bwry_s3_n16r8_A1_old
 验证状态：A1 两套已做模拟 SPI 数据检查；本移植尚未进行实屏验证。
 
 参考：[A1 批次与 JD79665 驱动说明](https://oshwhub.com/chen7654/project_rarhcffq)。
+
+## 独立对照：MoInk 的 C3 方案（不是第四个 S3 构建目标）
+
+[MakerWorld 作品 2998451](https://makerworld.com.cn/models/2998451) · [atunverse/moink 源码，核对版本 `343be94`](https://github.com/atunverse/moink/tree/343be94486388bbbe19891232e6bd79c0fce343c)。MoInk 使用 ESP32-C3 SuperMini（无 PSRAM）和 ESP-IDF；手机浏览器完成裁剪、四色量化与抖动（含 Atkinson），再把打包帧发给设备。它有自己的固件、帧协议和接线预设。
+
+排查 A1 中缝时，注意区分**接收图像、写入窗口、控制器扫描尺寸**。MoInk 的 [A1 驱动](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/src/epd_drv.c#L284-L318)接收 768×552，以 `(0,0)` 为起点顺序写 552 行，但控制器扫描 **768×600**；没有本项目立创新批次方案的 **800×600、X+32**。作者在[帧协议与实测记录](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/docs/CONTRACT.md#L96-L141)中说明已移除旧的 800×600 诊断档。MoInk 的 `A1` 不能据此直接等同于本项目的 `A1_old` 或 `a1_new`。
+
+接线也要按项目区分：例如 MoInk 的 C3 默认档用 **RST=GPIO3**，krstc 的 C3 用 **GPIO2**，本项目三套 S3 用 **GPIO8**。
