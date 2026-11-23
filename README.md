@@ -110,6 +110,8 @@ We are thrilled to see the amazing cases and custom PCBs created by the InkSight
 
 - **[Huawei Nova 14 Color Display Phone Case 3.98-inch 4-Color E-ink Screen](https://makerworld.com.cn/zh/models/2399226-gu-jian-kai-yuan-diy-hua-wei-nova14cai-xian-shou-j#profileId-2744953)**
 
+  This fork's [SE0398NZ07 S3 port guide (Chinese)](firmware/ports/se0398nz07/README.md) compares the A0, early A1 and late A1 profiles, their reference boards, GPIO assignments and driver files.
+
   <img src="images/community/case4.png" width="400">
 
 ### Custom PCBs

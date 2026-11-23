@@ -108,7 +108,7 @@
 
 - **[华为Nova14彩显手机壳3.98寸四色墨水屏](https://makerworld.com.cn/zh/models/2399226-gu-jian-kai-yuan-diy-hua-wei-nova14cai-xian-shou-j#profileId-2744953)**
 
-  本 fork 的 [ESP32-S3 N16R8 适配固件、批次选择与接线表](firmware/ports/se0398nz07/README.md)。
+  本 fork 的 [SE0398NZ07 三套 S3 移植说明：A0、A1 旧批次、A1 新批次](firmware/ports/se0398nz07/README.md)，含 S2/C3 原方案与 S3 引脚对照、批次配置和维护入口。
 
 <img src="images/community/case4.png" width="400">
 
