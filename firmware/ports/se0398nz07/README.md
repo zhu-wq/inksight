@@ -65,6 +65,14 @@ pio run -d firmware/ports/se0398nz07 -e epd_398_bwry_s3_n16r8_A1_old
 
 这和「墨水屏断电后还能显示上一次的画面」不同：MoInk 在没有互联网时仍能**换一张新照片**。本目录的三套 S3 配置适配的是 InkSight 屏幕驱动，未集成 MoInk 的热点传图页面；设备有配网热点，也不等于支持离线传照片。
 
+**离线创作页能做什么：**
+
+- **裁剪照片：** 页面内嵌 [Cropper.js](https://github.com/fengyuanchen/cropperjs)，手机连设备热点就能裁剪、缩放和旋转，无需联网加载脚本。
+- **四色暖调：** `eink-warm` 针对黑、白、黄、红调色板做暖调映射，可配合自动色阶改善明暗对比。它用屏幕能显示的红黄表现冷调照片中的色彩差异，减少画面量化后只剩黑白灰的情况，呈现偏暖的胶片感。暖调映射负责选色，Atkinson 等抖动算法负责用像素排列表现过渡，两者作用不同。
+- **便签排版：** 不上传照片也能写便签。在同一画布上添加多段文字，分别设置四色字、描边、底色、位置和旋转方向，预览后发送到屏幕。
+
+**供电看硬件版本：** 按作品的外壳与供电方案，可选 Type-C 直插或配无线充电接收模块，壳内也预留锂电池空间。预留空间不等于板上带充电管理；无线供电和电池充电取决于实际安装的电源板，不是切换 S3 固件批次就能启用的功能。
+
 [MakerWorld 作品 2998451](https://makerworld.com.cn/models/2998451) · [atunverse/moink 源码，核对版本 `343be94`](https://github.com/atunverse/moink/tree/343be94486388bbbe19891232e6bd79c0fce343c)。MoInk 使用 ESP32-C3 SuperMini（无 PSRAM）和 ESP-IDF；手机浏览器完成裁剪、四色量化与抖动（含 Atkinson），再把打包帧发给设备。它有自己的固件、帧协议和接线预设。
 
 排查 A1 中缝时，注意区分**接收图像、写入窗口、控制器扫描尺寸**。MoInk 的 [A1 驱动](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/src/epd_drv.c#L284-L318)接收 768×552，以 `(0,0)` 为起点顺序写 552 行，但控制器扫描 **768×600**；没有本项目立创新批次方案的 **800×600、X+32**。作者在[帧协议与实测记录](https://github.com/atunverse/moink/blob/343be94486388bbbe19891232e6bd79c0fce343c/docs/CONTRACT.md#L96-L141)中说明已移除旧的 800×600 诊断档。MoInk 的 `A1` 不能据此直接等同于本项目的 `A1_old` 或 `a1_new`。
