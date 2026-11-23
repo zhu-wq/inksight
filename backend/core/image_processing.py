@@ -59,9 +59,14 @@ def quantize_image_for_eink(
     *,
     colors: int,
     photo_enhance: bool = False,
+    eink_warm: str = "off",
 ) -> Image.Image:
     """Quantize RGB image data for 2-, 3-, or 4-color e-ink output with Atkinson dithering."""
-    prepared = enhance_photo_for_eink(rgb) if photo_enhance else rgb.convert("RGB")
+    if colors == 4 and eink_warm in ("natural", "adaptive"):
+        from .eink_warm import map_photo
+        prepared = map_photo(rgb, eink_warm)
+    else:
+        prepared = enhance_photo_for_eink(rgb) if photo_enhance else rgb.convert("RGB")
 
     if colors < 3:
         gray = ImageOps.autocontrast(prepared.convert("L"), cutoff=1)
@@ -80,6 +85,7 @@ def convert_image_block(
     align_x: str = "center",
     align_y: str = "center",
     photo_enhance: bool = False,
+    eink_warm: str = "off",
 ) -> Image.Image:
     """Fit and quantize an image for a JSON image block."""
     fitted = fit_image_to_box(src, width, height, fit=fit, align_x=align_x, align_y=align_y)
@@ -87,4 +93,5 @@ def convert_image_block(
         fitted,
         colors=colors,
         photo_enhance=photo_enhance,
+        eink_warm=eink_warm,
     )

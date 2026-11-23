@@ -2564,6 +2564,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
             align_x=align_x,
             align_y=align_y,
             photo_enhance=photo_enhance,
+            eink_warm=block.get("eink_warm", "off"),
         )
         if ctx.colors >= 3:
             ctx.img.paste(img, (x, y))
@@ -2583,6 +2584,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
                 align_x=align_x,
                 align_y=align_y,
                 photo_enhance=photo_enhance,
+                eink_warm=block.get("eink_warm", "off"),
             )
             if ctx.colors >= 3:
                 ctx.img.paste(img, (x, y))
@@ -2630,6 +2632,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
             align_x=align_x,
             align_y=align_y,
             photo_enhance=photo_enhance,
+            eink_warm=block.get("eink_warm", "off"),
         )
         if ctx.colors >= 3:
             ctx.img.paste(img, (x, y))

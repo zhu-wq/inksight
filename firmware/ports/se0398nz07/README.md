@@ -71,6 +71,8 @@ pio run -d firmware/ports/se0398nz07 -e epd_398_bwry_s3_n16r8_A1_old
 - **四色暖调：** `eink-warm` 针对黑、白、黄、红调色板做暖调映射，可配合自动色阶改善明暗对比。它用屏幕能显示的红黄表现冷调照片中的色彩差异，减少画面量化后只剩黑白灰的情况，呈现偏暖的胶片感。暖调映射负责选色，Atkinson 等抖动算法负责用像素排列表现过渡，两者作用不同。
 - **便签排版：** 不上传照片也能写便签。在同一画布上添加多段文字，分别设置四色字、描边、底色、位置和旋转方向，预览后发送到屏幕。
 
+**本 fork 已接入的部分：四色相框暖调。** 更新并重启 InkSight 后端（安装 `backend/requirements.txt` 中的依赖）后，「相框 / MY_ADAPTIVE」的照片默认使用全面暖色，无需重刷 ESP32。可在模式 JSON 的 `type: "image"` 块设置 `"eink_warm": "adaptive"`（冷色也映到红黄色带）、`"natural"`（主要增强已有暖色）或 `"off"`（原处理）。暖调包含自动色阶和锐化，之后沿用 InkSight 的 Atkinson 和四色帧格式。该映射是参考 MoInk 预设独立实现的后端处理，不是浏览器离线编辑器。
+
 **供电看硬件版本：** 按作品的外壳与供电方案，可选 Type-C 直插或配无线充电接收模块，壳内也预留锂电池空间。预留空间不等于板上带充电管理；无线供电和电池充电取决于实际安装的电源板，不是切换 S3 固件批次就能启用的功能。
 
 [MakerWorld 作品 2998451](https://makerworld.com.cn/models/2998451) · [atunverse/moink 源码，核对版本 `343be94`](https://github.com/atunverse/moink/tree/343be94486388bbbe19891232e6bd79c0fce343c)。MoInk 使用 ESP32-C3 SuperMini（无 PSRAM）和 ESP-IDF；手机浏览器完成裁剪、四色量化与抖动（含 Atkinson），再把打包帧发给设备。它有自己的固件、帧协议和接线预设。

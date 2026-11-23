@@ -1,11 +1,29 @@
 from PIL import Image
 
 from core import native_dither
+from core.eink_warm import map_photo
 from core.image_processing import convert_image_block, quantize_image_for_eink
 
 
 def test_native_dither_library_is_available():
     assert native_dither._load_lib() is not None
+
+
+def test_warm_mapping_reference_before_dithering():
+    # RGB outputs from MoInk 343be94 warmMap with its default preset parameters.
+    src = Image.frombytes("RGB", (3, 2), bytes.fromhex("1019584650aa64b4c8e6dba4aa234a646464"))
+    assert map_photo(src, "natural").tobytes().hex() == "0a37464fa4b67addb7fffbc1c90433666962"
+    assert map_photo(src, "adaptive").tobytes().hex() == "4d2604d0832deda44bfcca8cd6a80d7d4b41"
+
+
+def test_warm_photo_uses_red_or_yellow_for_cool_subject_only_on_four_inks():
+    src = Image.new("RGB", (32, 24), (40, 100, 200))
+    warm = convert_image_block(src, 32, 24, 4, eink_warm="adaptive")
+    assert set(warm.getdata()) & {2, 3}
+    assert warm.tobytes() != convert_image_block(src, 32, 24, 4).tobytes()
+    for colors in (2, 3):
+        assert (convert_image_block(src, 32, 24, colors, eink_warm="adaptive").tobytes()
+                == convert_image_block(src, 32, 24, colors).tobytes())
 
 
 def test_quantizes_black_white_image_to_1bit_with_atkinson():

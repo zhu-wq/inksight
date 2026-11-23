@@ -426,7 +426,8 @@
         "fit": { "type": "string", "enum": ["fill", "stretch", "contain", "cover"], "default": "fill" },
         "align_x": { "type": "string", "enum": ["left", "center", "right", "start", "end"], "default": "center" },
         "align_y": { "type": "string", "enum": ["top", "center", "bottom", "start", "end"], "default": "center" },
-        "photo_enhance": { "type": "boolean", "default": false, "description": "Apply conservative photo contrast/sharpness enhancement before quantization." }
+        "photo_enhance": { "type": "boolean", "default": false, "description": "Apply conservative photo contrast/sharpness enhancement before quantization." },
+        "eink_warm": { "type": "string", "enum": ["off", "natural", "adaptive"], "default": "off", "description": "Four-color photos only: warm mapping replaces photo_enhance before Atkinson dithering." }
       }
     },
     "progress_bar_block": {
